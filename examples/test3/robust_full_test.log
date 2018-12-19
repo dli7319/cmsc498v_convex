@@ -1,0 +1,10 @@
+782.735758 tensor(0.5784, device='cuda:0') tensor(0.7550, device='cuda:0') 0.9048
+1581.354279 tensor(0.5335, device='cuda:0') tensor(0.7063, device='cuda:0') 0.8844
+2407.686246 tensor(0.5088, device='cuda:0') tensor(0.6602, device='cuda:0') 0.8232
+3249.398848 tensor(0.5143, device='cuda:0') tensor(0.6401, device='cuda:0') 0.7728
+4077.440055 tensor(0.5286, device='cuda:0') tensor(0.6290, device='cuda:0') 0.7299
+4898.899433 tensor(0.5187, device='cuda:0') tensor(0.6205, device='cuda:0') 0.7009
+5727.824711 tensor(0.6002, device='cuda:0') tensor(0.6865, device='cuda:0') 0.7645
+6553.284266 tensor(0.5485, device='cuda:0') tensor(0.6259, device='cuda:0') 0.6895
+7373.880939 tensor(0.5860, device='cuda:0') tensor(0.6487, device='cuda:0') 0.699
+8189.490278 tensor(0.6067, device='cuda:0') tensor(0.6560, device='cuda:0') 0.6971

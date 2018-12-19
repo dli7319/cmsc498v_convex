@@ -36,12 +36,19 @@ def select_model(m):
 if __name__ == "__main__": 
     args = pblm.argparser(epsilon = 0.0347, starting_epsilon=0.001, batch_size = 50, 
                 opt='sgd', lr=0.05)
+    args.method = "madry"
+    # args.batch_size = 20
+    # args.test_batch_size = 20
+    args.prefix = "test_cifar/prefix"
+    # args.epochs = 35
+    print(args)
 
     print("saving file to {}".format(args.prefix))
     setproctitle.setproctitle(args.prefix)
 
     train_log = open(args.prefix + "_train.log", "w")
     test_log = open(args.prefix + "_test.log", "w")
+    full_test_log = open(args.prefix + "_full_test.log", "w")
 
     train_loader, _ = pblm.cifar_loaders(args.batch_size)
     _, test_loader = pblm.cifar_loaders(args.test_batch_size)
@@ -129,7 +136,9 @@ if __name__ == "__main__":
                    test_log, args.verbose, args.real_time,
                    norm_type=args.norm_test, bounded_input=False, 
                    **kwargs)
-            
+
+            print("Test PGD Error:", err, file=full_test_log)
+
             if err < best_err: 
                 best_err = err
                 torch.save({

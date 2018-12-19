@@ -169,10 +169,10 @@ def train_baseline(loader, model, opt, epoch, log, verbose):
 
         batch_time.update(time.time()-end)
         end = time.time()
-        losses.update(ce.data[0], X.size(0))
+        losses.update(ce.data.item(), X.size(0))
         errors.update(err, X.size(0))
 
-        print(epoch, i, ce.data[0], err, file=log)
+        print(epoch, i, ce.data.item(), err, file=log)
         if verbose and i % verbose == 0: 
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
@@ -198,10 +198,10 @@ def evaluate_baseline(loader, model, epoch, log, verbose):
         err = (out.data.max(1)[1] != y).float().sum()  / X.size(0)
 
         # print to logfile
-        print(epoch, i, ce.data[0], err, file=log)
+        print(epoch, i, ce.data.item(), err, file=log)
 
         # measure accuracy and record loss
-        losses.update(ce.data[0], X.size(0))
+        losses.update(ce.data.item(), X.size(0))
         errors.update(err, X.size(0))
 
         # measure elapsed time
@@ -267,12 +267,12 @@ def train_madry(loader, model, epsilon, opt, epoch, log, verbose):
 
         batch_time.update(time.time()-end)
         end = time.time()
-        losses.update(ce.item(), X.size(0))
-        errors.update(err, X.size(0))
-        plosses.update(pce.item(), X.size(0))
-        perrors.update(perr, X.size(0))
+        losses.update(ce.data.item(), X.size(0))
+        errors.update(err.item(), X.size(0))
+        plosses.update(pce.data.item(), X.size(0))
+        perrors.update(perr.item(), X.size(0))
 
-        print(epoch, i, ce.item(), err, file=log)
+        print(epoch, i, ce.data.item(), err, file=log)
         if verbose and i % verbose == 0: 
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
@@ -306,10 +306,10 @@ def evaluate_madry(loader, model, epsilon, epoch, log, verbose):
         _, pgd_err = _pgd(model, Variable(X), Variable(y), epsilon)
 
         # print to logfile
-        print(epoch, i, ce.item(), err, file=log)
+        print(epoch, i, ce.data.item(), err, file=log)
 
         # measure accuracy and record loss
-        losses.update(ce.item(), X.size(0))
+        losses.update(ce.data.item(), X.size(0))
         errors.update(err, X.size(0))
         perrors.update(pgd_err, X.size(0))
 
@@ -330,7 +330,7 @@ def evaluate_madry(loader, model, epsilon, epoch, log, verbose):
     print(' * PGD error {perror.avg:.3f}\t'
           'Error {error.avg:.3f}'
           .format(error=errors, perror=perrors))
-    return errors.avg
+    return perrors.avg
 
 
 def robust_loss_cascade(models, epsilon, X, y, **kwargs): 
@@ -355,7 +355,7 @@ def robust_loss_cascade(models, epsilon, X, y, **kwargs):
 
         _, uncertified = rl(model, epsilon, X,
                                      out.max(1)[1],
-                                     size_average=False, **kwargs)
+                                     reduction='sum', **kwargs)
 
         certified = ~uncertified
         l = []
@@ -371,8 +371,8 @@ def robust_loss_cascade(models, epsilon, X, y, **kwargs):
             err = (out.data.max(1)[1] != y_cert.data).float()
             robust_ce, robust_err = rl(model, epsilon, 
                                                  X_cert, 
-                                                 y_cert, 
-                                                 size_average=False,
+                                                 y_cert,
+                                                 reduction='sum',
                                                  **kwargs)
             # add statistics for certified examples
             total_robust_ce += robust_ce.sum()
@@ -398,7 +398,7 @@ def robust_loss_cascade(models, epsilon, X, y, **kwargs):
     err = (out.data.max(1)[1] != y.data).float()
 
     robust_ce, robust_err = rl(models[-1], epsilon, X, y,
-                                         size_average=False, **kwargs)
+                               reduction='sum', **kwargs)
 
     # update statistics with the remaining model and take the average 
     total_robust_ce += robust_ce.sum()
@@ -414,7 +414,7 @@ def robust_loss_cascade(models, epsilon, X, y, **kwargs):
     _, uncertified = rl(models[-1], epsilon, 
                                  X, 
                                  out.max(1)[1], 
-                                 size_average=False,
+                                 reduction='sum',
                                  **kwargs)
     if uncertified.sum() > 0: 
         I = I[uncertified.nonzero()[:,0]]
